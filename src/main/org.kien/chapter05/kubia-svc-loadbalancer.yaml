@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia-loadbalancer
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local # Redirect external traffic only to pods running on the node that received the connection.
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: kubia
