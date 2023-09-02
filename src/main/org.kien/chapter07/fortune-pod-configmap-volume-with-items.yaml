@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fortune-configmap-volume-with-items
+spec:
+  containers:
+    - name: html-generator
+      image: luksa/fortune:env
+      env:
+        - name: INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              key: sleep-interval
+              name: fortune-config
+      volumeMounts:
+        - mountPath: /var/htdocs
+          name: html
+
+    - image: nginx:alpine
+      name: web-server
+      volumeMounts:
+        - mountPath: /user/share/nginx/html
+          name: html
+          readOnly: true
+        - mountPath: /etc/nginx/conf.d
+          readOnly: true
+          name: config
+        - mountPath: /tmp/whole-fortune-config-volume
+          readOnly: true
+          name: config
+      ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+
+  volumes:
+    - name: html
+      emptyDir: {}
+    - name: config
+      configMap:
+        name: fortune-config
+        items:
+          - key: my-nginx-config.conf
+            path: gzip.config
+
